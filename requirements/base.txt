@@ -1,0 +1,8 @@
+django
+psycopg2
+python-environ
+django-cors-headers
+django-jazzmin
+djangorestframework
+drf-spectacular
+django-filter
