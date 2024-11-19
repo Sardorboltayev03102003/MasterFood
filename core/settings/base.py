@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 from pathlib import Path
 
 import environ
+from django.conf import settings
 
 from core.jazzmin_conf import *  # noqa
 
@@ -42,26 +43,31 @@ DJANGO_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    'rest_framework_simplejwt',
 ]
 
 CUSTOM_APPS = [
     "apps.common",
+    'apps.users',
 ]
 
 THIRD_PARTY_APPS = [
     "rest_framework",
     "corsheaders",
     'drf_spectacular',
+    'phonenumber_field',
 ]
 
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "rest_framework.authentication.SessionAuthentication",
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
     "DEFAULT_FILTER_BACKENDS": (
         "django_filters.rest_framework.DjangoFilterBackend",
         "rest_framework.filters.SearchFilter",
     ),
+
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.LimitOffsetPagination",
     "PAGE_SIZE": 10,
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
@@ -114,6 +120,13 @@ DATABASES = {
         "ATOMIC_REQUESTS": True,
     }
 }
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.example.com'  # SMTP server
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'boltayevs758@gmail.com'
+EMAIL_HOST_PASSWORD = 'izqa frft kbwu gqwt'
+
 
 # Password validation
 # https://docs.djangoproject.com/en/4.1/ref/settings/#auth-password-validators
@@ -180,7 +193,7 @@ CELERY_TASK_TIME_LIMIT = 30 * 60
 
 
 SPECTACULAR_SETTINGS = {
-    'TITLE': 'IMB',
+    'TITLE': 'MasterFood',
     'DESCRIPTION': 'Automation',
     'VERSION': '1.0.0',
     'SERVE_INCLUDE_SCHEMA': False,
@@ -190,3 +203,7 @@ SPECTACULAR_SETTINGS = {
     "COMPONENT_NO_REQUEST_RESPONSE_PATH": False,
     "DISABLE_ERRORS_AND_WARNINGS": True,
 }
+AUTH_USER_MODEL = 'users.User'
+
+from datetime import timedelta
+SIMPLE_JWT = { 'ACCESS_TOKEN_LIFETIME': timedelta(minutes=5), 'REFRESH_TOKEN_LIFETIME': timedelta(days=1), 'ROTATE_REFRESH_TOKENS': False, 'BLACKLIST_AFTER_ROTATION': True, 'AUTH_HEADER_TYPES': ('Bearer',), 'AUTH_TOKEN_CLASSES': ('rest_framework_simplejwt.tokens.AccessToken',),}
