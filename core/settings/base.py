@@ -15,6 +15,7 @@ import environ
 from django.conf import settings
 
 from core.jazzmin_conf import *  # noqa
+from datetime import timedelta
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
@@ -36,6 +37,7 @@ ALLOWED_HOSTS = ["*"]
 
 # Application definition
 DJANGO_APPS = [
+    "unfold",  # before django.contrib.admin
     "jazzmin",
     "django.contrib.admin",
     "django.contrib.auth",
@@ -121,11 +123,11 @@ DATABASES = {
     }
 }
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.example.com'  # SMTP server
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'boltayevs758@gmail.com'
-EMAIL_HOST_PASSWORD = 'izqa frft kbwu gqwt'
+EMAIL_HOST = 'smtp.gmail.com'  # Gmail SMTP serveri
+EMAIL_PORT = 587  # SMTP porti
+EMAIL_USE_TLS = True  # TLS shifrlashni yoqish
+EMAIL_HOST_USER = 'boltayevs758@gmail.com'  # Gmail hisobingiz
+EMAIL_HOST_PASSWORD = 'izqafrftkbwugqwt'  # Gmail hisobingiz paroli
 
 
 # Password validation
@@ -205,5 +207,8 @@ SPECTACULAR_SETTINGS = {
 }
 AUTH_USER_MODEL = 'users.User'
 
-from datetime import timedelta
-SIMPLE_JWT = { 'ACCESS_TOKEN_LIFETIME': timedelta(minutes=5), 'REFRESH_TOKEN_LIFETIME': timedelta(days=1), 'ROTATE_REFRESH_TOKENS': False, 'BLACKLIST_AFTER_ROTATION': True, 'AUTH_HEADER_TYPES': ('Bearer',), 'AUTH_TOKEN_CLASSES': ('rest_framework_simplejwt.tokens.AccessToken',),}
+
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(hours=24),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=10),
+}

@@ -8,10 +8,12 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import Token
 
-from .serializers import RegisterSerializer, EmailVerificationSerializer
+from .serializers import RegisterSerializer, EmailVerificationSerializer,get_tokens_for_user
 from .models import User, EmailVerification
 from rest_framework import generics
 
+from rest_framework.authentication import SessionAuthentication, BasicAuthentication
+from rest_framework.permissions import IsAuthenticated
 
 class RegisterAPIView(generics.GenericAPIView):
     serializer_class = RegisterSerializer
@@ -21,8 +23,13 @@ class RegisterAPIView(generics.GenericAPIView):
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
 
-        code = str(random.randint(1000, 9999))
-        verification = EmailVerification.objects.create(user=user, code=code)
+        # code = str(random.randint(1000, 9999))
+        verification, created = EmailVerification.objects.get_or_create(user=user)
+
+        if created:
+            verification.generate_code()
+        else:
+            verification.generate_code()
         send_mail(
             subject='Tasdiqlash kodi',
             message=f"Sizning tasdiqlash kodingiz: {verification.code}\n"
@@ -30,12 +37,19 @@ class RegisterAPIView(generics.GenericAPIView):
             from_email='your-email@gmail.com',
             recipient_list=[user.email]
         )
-        return Response({"detail": "Tasdiqlash kodi emailingizga yuborildi!! "},
-                        status=status.HTTP_201_CREATED)
+        tokens = get_tokens_for_user(user)
+        return Response(
+            {"detail": "Tasdiqlash kodi emailingizga yuborildi!! ",
+             "access_token": tokens['access_token'],
+             "refresh_token": tokens['refresh_token']
+             },
+            status=status.HTTP_201_CREATED)
 
 
 class VerifyEmailAPIView(generics.GenericAPIView):
     serializer_class = EmailVerificationSerializer
+    authentication_classes = [SessionAuthentication, BasicAuthentication]
+    permission_classes = [IsAuthenticated]
 
     def post(self, request):
         serializer = self.serializer_class(data=request.data)
@@ -58,8 +72,7 @@ class VerifyEmailAPIView(generics.GenericAPIView):
             # verification.delete()
 
             # Token yaratish
-            token, _ = Token.objects.get_or_create(user=user)
-            return Response({"detail": "Email muvaffaqiyatli tasdiqlandi.", "token": token.key},
+            return Response({"detail": "Email muvaffaqiyatli tasdiqlandi."},
                             status=status.HTTP_200_OK)
 
         except EmailVerification.DoesNotExist:

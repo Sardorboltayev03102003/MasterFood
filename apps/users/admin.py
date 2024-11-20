@@ -10,5 +10,5 @@ class UserAdmin(u_admin.ModelAdmin):
 
 @admin.register(EmailVerification)
 class EmailVerificationAdmin(u_admin.ModelAdmin):
-    list_display = ('code', 'expiration_time')
+    list_display = ('user','code', 'expiration_time')
 # Register your models here.
