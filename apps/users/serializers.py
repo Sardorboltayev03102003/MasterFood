@@ -15,21 +15,24 @@ class RegisterSerializer(serializers.Serializer):
     username = serializers.CharField(max_length=255, required=False)
     password = serializers.CharField(max_length=55)
 
-
     model = models.User
     field = ('first_name', 'last_name', 'username', 'password', 'email')
     extra_kwargs = {'password': {'writy_only': True}}
 
-    def validate_email(self, value):
-
-        if User.objects.filter(email=value).exists():
-            # print(User.objects.filter(email__iexact=lower_email))
-            raise serializers.ValidationError("Ushbu email allaqachon mavjud!! ")
-        return value
+    # def validate_email(self, value):
+    #     if User.objects.filter(email=value).exists():
+    #         raise serializers.ValidationError("Ushbu email allaqachon mavjud!! ")
+    #     return value
 
     def validate_username(self, attrs):
         if User.objects.filter(username=attrs).exists():
             raise serializers.ValidationError("Yaratilgan Username band!! ")
+        return attrs
+
+    def validate_email(self, attrs):
+        user = User.objects.filter(username=attrs).first()
+        if user and user.is_email_verify:
+            raise serializers.ValidationError("ushbu email ro'yxatdan otkan ")
         return attrs
 
     def create(self, validated_data):
@@ -40,14 +43,7 @@ class RegisterSerializer(serializers.Serializer):
             first_name=validated_data['first_name'],
             last_name=validated_data['last_name']
         )
-        user.is_email_verify = False
-        user.save()
-
-        verification = EmailVerification.objects.create(user=user)
-        verification.generate_code()
         return user
-
-
 
 
 def get_tokens_for_user(user):
@@ -60,4 +56,3 @@ def get_tokens_for_user(user):
 
 class EmailVerificationSerializer(serializers.Serializer):
     code = serializers.IntegerField()
-

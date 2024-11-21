@@ -5,7 +5,7 @@ from unfold import admin as u_admin
 
 @admin.register(User)
 class UserAdmin(u_admin.ModelAdmin):
-    list_display = ('id', 'first_name', 'last_name', 'email', 'password', 'username')
+    list_display = ('id', 'first_name', 'last_name', 'email', 'password', 'username','is_email_verify')
 
 
 @admin.register(EmailVerification)
